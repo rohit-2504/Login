@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            color: #fff;
+            flex-direction: column;
+            justify-content: center;
+            transition: background 2s ease;
+            align-items: center;
+            height: 100vh;
+            background-size: 200% 200%;
+            animation: gradient-angle 5s linear infinite;
+        }
+
+        span{
+            color: red;
+            transition: .5s;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .form-container {
+            background-color: transparent;
+            padding:  20px;
+            backdrop-filter: blur(30px);
+            border-radius: 8px;
+            box-shadow: 0 0 0px #999;
+            width: 300px;
+            transition: .2s;
+        }
+
+        .form-container:hover{
+            transition: .2s;
+            padding: 25px;
+            box-shadow: 0px 0px 20px #999;
+        }
+
+        h2 {
+            font-weight: bolder;
+            font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 35px;
+            color: #fff;
+            text-align: center;
+            border-right: none;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            outline-style: 1px solid transparent;
+            background: linear-gradient(90deg,#fff5,#fff9);
+            border: 1px solid transparent;
+            border-radius: 5px;
+            transition: .2s;
+        }
+        input::placeholder{
+            color: #000;
+            font-weight: bolder;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #00e1ff;
+            color: #000;
+            font-weight: bolder;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        button:hover {
+            background-color: #0099ff;
+            transition: .2s;
+        }
+
+        .signin-link {
+            font-weight: normal;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body id="bd">
+    <div class="form-container">
+    <h2>Sign Up</h2>
+        <form id="signupForm" onsubmit="return validatePassword(event);">
+            <input type="text" autofocus id="username" placeholder="Enter Username" required>
+            <input type="password" id="password" placeholder="Enter Password" required>
+            <input type="password" id="confirm_password" placeholder="Confirm Password" required><br>
+            <span id="error"> </span><br>
+            <button type="submit">Sign Up</button>
+          </form>
+          
+        <div class="signin-link">
+            <p>Already have an account? <a style="text-decoration: none;color:#fff;font-weight: bolder;" href="login.html">Login here</a></p>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"> </script>
+    <script>
+          body=document.getElementById('bd')
+          degree=120;
+        const interval=setInterval(()=>{
+        degree=(degree+2)% 360;
+        body.style.background='linear-gradient('+degree+'deg,#222 60%,#ccc 60%)'
+        if(degree>= 300){
+            clearInterval(interval)
+        }
+       },1)
+
+    function validatePassword(event) {
+        event.preventDefault(); // Prevent form from refreshing the page
+    
+        const user_name = document.getElementById("username").value;
+        const emsg = document.getElementById("error");
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirm_password").value;
+    
+        if (password !== confirmPassword) {
+            emsg.innerHTML="Passwords do not match!";
+            emsg.style.color='red';
+            return false;
+        }
+    
+        const soker = io(); // Initialize Socket.IO connection
+    
+        soker.emit("user", `${user_name}.${password}`);
+    
+        soker.on("error", (message) => {
+            console.log("Error:", message);
+            if (message === true) {
+                emsg.innerHTML="User created successfully!";
+                emsg.style.color='lime';
+                setTimeout(() => {
+                    window.location.href = "/login";
+                }, 1000);
+            } else {
+                emsg.innerHTML=message;
+                emsg.style.color='red';
+                 // Display the error or success message
+            }
+        });
+    }
+    
+    </script>
+</body>
+</html>
